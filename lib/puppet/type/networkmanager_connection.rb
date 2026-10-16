@@ -11,6 +11,7 @@ Puppet::ResourceApi.register_type(
         ensure         => 'present',
         type           => '802-3-ethernet',
         device         => 'enp0s8',
+        zone           => 'public',
         ipv4_method    => 'manual',
         ipv4_addresses => ['192.0.2.10/24'],
         ipv4_gateway   => '192.0.2.1',
@@ -43,6 +44,11 @@ Puppet::ResourceApi.register_type(
     device: {
       type: 'Optional[String]',
       desc: 'The network interface this connection applies to (optional).',
+    },
+
+    zone: {
+      type: 'Optional[String]',
+      desc: 'The zone this connection belongs to (optional).',
     },
 
     reapply: {

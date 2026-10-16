@@ -78,6 +78,7 @@ class Puppet::Provider::NetworkmanagerConnection::NetworkmanagerConnection < Pup
   unless const_defined?(:PROPERTY_MAP, false)
     PROPERTY_MAP = {
       device: 'connection.interface-name',
+      zone: 'connection.zone',
       ipv4_method: 'ipv4.method',
       ipv4_addresses: 'ipv4.addresses',
       ipv4_dns: 'ipv4.dns',
@@ -422,6 +423,7 @@ class Puppet::Provider::NetworkmanagerConnection::NetworkmanagerConnection < Pup
       name: connection,
       type: data['connection.type'],
       device: data['connection.interface-name'],
+      zone: data['connection.zone'],
       ipv4_method: data['ipv4.method'],
       ipv4_addresses: split_profile_list(data['ipv4.addresses']),
       ipv4_dns: split_profile_list(data['ipv4.dns']),

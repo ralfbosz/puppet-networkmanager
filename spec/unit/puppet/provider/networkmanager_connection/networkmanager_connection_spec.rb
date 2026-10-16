@@ -96,6 +96,7 @@ RSpec.describe Puppet::Provider::NetworkmanagerConnection::NetworkmanagerConnect
                                                      name: 'foo',
                                                      type: 'wifi',
                                                      device: nil,
+                                                     zone: nil,
                                                      ipv4_method: nil,
                                                      ipv4_addresses: nil,
                                                      ipv4_dns: nil,
@@ -123,6 +124,7 @@ RSpec.describe Puppet::Provider::NetworkmanagerConnection::NetworkmanagerConnect
                                                      name: 'foo',
                                                      type: nil,
                                                      device: nil,
+                                                     zone: nil,
                                                      ipv4_method: nil,
                                                      ipv4_addresses: ['192.168.1.10/24', '192.168.1.11/24'],
                                                      ipv4_dns: ['1.1.1.1', '8.8.8.8'],
@@ -151,6 +153,7 @@ RSpec.describe Puppet::Provider::NetworkmanagerConnection::NetworkmanagerConnect
                                                      name: 'foo',
                                                      type: nil,
                                                      device: nil,
+                                                     zone: nil,
                                                      ipv4_method: nil,
                                                      ipv4_addresses: nil,
                                                      ipv4_dns: nil,
@@ -169,6 +172,15 @@ RSpec.describe Puppet::Provider::NetworkmanagerConnection::NetworkmanagerConnect
                                                      general_state: 'unknown',
                                                    },
                                                  ])
+    end
+
+    it 'reads the zone from the connection profile field' do
+      allow(provider).to receive(:list_connections).and_return(['foo'])
+      allow(provider).to receive(:nmcli).with('-t', 'connection', 'show', 'foo').and_return(
+        "connection.zone:trusted\n",
+      )
+
+      expect(provider.get(context, 'foo').first[:zone]).to eq('trusted')
     end
   end
 
@@ -238,6 +250,26 @@ RSpec.describe Puppet::Provider::NetworkmanagerConnection::NetworkmanagerConnect
                          ensure: 'present',
                          ipv4_addresses: ['10.0.0.10/24', '10.0.0.11/24'],
                          ipv4_dns: ['1.1.1.1', '8.8.8.8'],
+                       },
+                     },
+                   })
+    end
+
+    it 'updates the connection zone' do
+      expect(context).to receive(:notice).with("Updating 'office'")
+      expect(provider).to receive(:nmcli).with('connection', 'modify', 'office',
+                                               'connection.zone', 'trusted')
+
+      provider.set(context, {
+                     'office' => {
+                       is: {
+                         name: 'office',
+                         ensure: 'present',
+                       },
+                       should: {
+                         name: 'office',
+                         ensure: 'present',
+                         zone: 'trusted',
                        },
                      },
                    })
